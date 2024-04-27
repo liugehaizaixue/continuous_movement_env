@@ -59,11 +59,11 @@ while running:
 
     # 绘制障碍物
     for obstacle in obstacles:
-        pygame.draw.circle(window, BLUE, (obstacle[0], obstacle[1]), obstacle[2])
+        pygame.draw.circle(window, BLACK, (obstacle[0], obstacle[1]), obstacle[2])
 
     # 绘制小球
-    pygame.draw.circle(window, BLACK, ball_pos, ball_radius)
-        # 计算箭头位置和角度
+    pygame.draw.circle(window, BLUE, ball_pos, ball_radius)
+    # 计算箭头位置和角度
     arrow_length = 20
     arrow_angle = math.atan2(ball_velocity[1], ball_velocity[0])
     arrow_end_x = ball_pos[0] + arrow_length * math.cos(arrow_angle)
