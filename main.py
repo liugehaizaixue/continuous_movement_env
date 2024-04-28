@@ -1,6 +1,7 @@
 import pygame
 import sys
 import math
+from utils import generate_random_spawn_point , generate_random_velocity
 
 # 初始化Pygame
 pygame.init()
@@ -20,12 +21,12 @@ window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("智能体连续运动")
 
 # 小球初始位置、半径和速度
-ball_pos = [100, 100]
 ball_radius = 20
-ball_velocity = [2, 2]
+ball_velocity = generate_random_velocity()
 
 # 障碍物列表，每个障碍物表示为 (x, y, radius)
 obstacles = [(300, 200, 20), (500, 400, 30), (200, 500, 25)]
+ball_pos = generate_random_spawn_point(ball_radius, obstacles, WINDOW_WIDTH, WINDOW_HEIGHT )
 
 # 游戏主循环
 running = True
@@ -47,11 +48,12 @@ while running:
     if ball_pos[1] - ball_radius < 0 or ball_pos[1] + ball_radius > WINDOW_HEIGHT:
         ball_velocity[1] *= -1
 
+    ball_center = pygame.Vector2(ball_pos)
+    print(ball_center)
     # 检测碰撞
     for obstacle in obstacles:
         obstacle_pos = pygame.Vector2(obstacle[0], obstacle[1])
         obstacle_radius = obstacle[2]
-        ball_center = pygame.Vector2(ball_pos)
         if obstacle_pos.distance_to(ball_center) < ball_radius + obstacle_radius:
             # 发生碰撞，根据需要更新小球的速度或位置
             ball_velocity[0] *= -1
