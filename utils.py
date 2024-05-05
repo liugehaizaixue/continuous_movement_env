@@ -34,3 +34,27 @@ def generate_random_velocity():
     velocity_x = math.cos(angle)
     velocity_y = math.sin(angle)
     return [velocity_x, velocity_y]
+
+
+
+def expand_matrix(matrix, factor):
+    """ 
+    按照比例倍数扩展原矩阵
+    matrix 原矩阵
+
+    factor 扩展倍数
+    """
+    expanded_matrix = []
+    for row in matrix:
+        expanded_row = []
+        for element in row:
+            expanded_element = [element] * factor
+            expanded_row.extend(expanded_element)
+        expanded_row = [expanded_row] * factor
+        expanded_matrix.extend(expanded_row)
+    return expanded_matrix
+
+def print_matrix(matrix):
+    """ 打印矩阵 """
+    for row in matrix:
+        print("".join(row))
