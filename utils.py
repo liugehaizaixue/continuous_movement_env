@@ -29,24 +29,28 @@ def generate_random_spawn_point(ball_radius, obstacles, WINDOW_WIDTH, WINDOW_HEI
             return [random_x, random_y]
 
 
-def random_point(matrix, r):
+def random_point(matrix, r, seed=42):
     """ 随机选择点 , 保证选择的点的r范围内不是边界 也不是 障碍1
     matrix 为矩阵
     r 为范围
     """
+    random.seed(seed)
     height = len(matrix)
     width = len(matrix[0])
 
     attempts = height * width  # 最多尝试次数
 
     while attempts > 0:
-        x = random.randint(r, width - r - 1)
-        y = random.randint(r, height - r - 1)
+        y = random.randint(r, width - r - 1)
+        x = random.randint(r, height - r - 1)
 
         valid = True
-        for i in range(y - r, y + r + 1):
-            for j in range(x - r, x + r + 1):
-                if i < 0 or i >= height or j < 0 or j >= width or matrix[i][j] == 1:
+        for i in range(x - r, x + r + 1):
+            for j in range(y - r, y + r + 1):
+                if i < 0 or i >= height or j < 0 or j >= width:
+                    valid = False
+                    break
+                if matrix[i][j] == 1:
                     valid = False
                     break
             if not valid:
@@ -62,7 +66,7 @@ def random_point(matrix, r):
 def distance(p1, p2):
     return ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
 
-def generate_points(matrix , r , k):
+def generate_points(matrix , r , k , seed=42):
     """ 
         在matrix上
         生成k对 start与tartget
@@ -75,9 +79,10 @@ def generate_points(matrix , r , k):
     target_points = []
     attempts = height * width
     while len(start_points) < k and attempts > 0:
+        seed = seed + 1
         attempts -= 1
         s_valid = True    
-        start = random_point(matrix , r)
+        start = random_point(matrix , r , seed)
         if start:
             for point in start_points:
                 if distance(start, point) < 2 * r:
@@ -88,8 +93,9 @@ def generate_points(matrix , r , k):
 
     attempts = height * width
     while len(target_points) < k and attempts > 0:
+        seed = seed + 1
         attempts -= 1
-        target = random_point(matrix , r)
+        target = random_point(matrix , r, seed)
         if target:
             if target not in target_points:
                 target_points.append(target)

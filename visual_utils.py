@@ -22,3 +22,10 @@ def visual_map(map):
 
 #     plt.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True)
 #     plt.show()
+
+
+def visual_matrix(matrix):
+    cmap = ListedColormap(COLORS)
+    rendering = plt.imshow(matrix, cmap=cmap, interpolation='none')
+    plt.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True)
+    plt.show()   

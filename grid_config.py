@@ -6,12 +6,12 @@ from typing_extensions import Literal
 class CommonSettings(BaseModel):
     FREE: Literal[0] = 0
     OBSTACLE: Literal[1] = 1
-    empty_outside: bool = True
+    empty_outside: bool = False
 
 class GridConfig(CommonSettings, ):
     seed: Optional[int] = None
     size: int = 8
-    density: float = 0.3
+    density: float = 1
     num_agents: int = 1
     obs_radius: int = 150
     agents_radius: int = 30

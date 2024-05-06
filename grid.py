@@ -42,7 +42,7 @@ class Grid:
         if gc.empty_outside:
             filled_obstacles = np.zeros(np.array(self.obstacles.shape) + r * 2)
         else:
-            filled_obstacles = self.rnd.binomial(1, gc.density, np.array(self.obstacles.shape) + r * 2)
+            filled_obstacles = np.ones(np.array(self.obstacles.shape) + r * 2)
 
         height, width = filled_obstacles.shape
         filled_obstacles[r - 1, r - 1:width - r + 1] = gc.OBSTACLE
@@ -141,7 +141,8 @@ class Grid:
     def get_obstacles_for_agent(self, agent_id):
         x, y = self.positions_xy[agent_id]
         r = self.config.obs_radius
-        return self.obstacles[x - r:x + r + 1, y - r:y + r + 1].astype(np.float32)
+        obs_obstacles = self.obstacles[x - r:x + r + 1, y - r:y + r + 1].astype(np.float32)
+        return obs_obstacles
 
     @staticmethod
     def check_is_before_obstacles_or_agent(x0, y0, x1, y1, obs_matrix, visibility_record_matrix) -> bool:
