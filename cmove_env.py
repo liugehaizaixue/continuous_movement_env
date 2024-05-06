@@ -16,15 +16,15 @@ gym.register(
 
 class CMoveEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 1}
-    def __init__(self, render_mode="human"):
+    def __init__(self,num_agents=64, render_mode="human"):
         super(CMoveEnv, self).__init__()
-        self.action_space = spaces.Box(-1, 1, shape=(2, ), dtype=np.float32)
-        self.observation_space = spaces.Box(low=0, high=255, shape=(5, 5), dtype=np.float32)
         self.pos = None
         self.velocity = None
-        self.radius = 20
-        self.width, self.height = (800 , 600)
-        self.obstacles = [(300, 200, 20), (500, 400, 30), (200, 500, 25)]
+        self.radius = 30
+        self.map = None
+        self.num_agents = num_agents
+        self.action_space = spaces.Box(-20, 20, shape=(2, ), dtype=np.float32)
+        self.observation_space = spaces.Box(low=0, high=255, shape=(100, 100), dtype=np.float32)
 
     def step(self, action):
         self.velocity = action
@@ -37,7 +37,6 @@ class CMoveEnv(gym.Env):
         return obs , reward , done ,truncated , info
 
     def reset(self, *, seed=None, options=None):
-        self.pos = generate_random_spawn_point(ball_radius=self.radius , obstacles=self.obstacles, WINDOW_HEIGHT=self.height, WINDOW_WIDTH=self.width)
         self.velocity = generate_random_velocity()
         obs = np.zeros(shape=(5,5)).astype(np.float32)
         info = {}
@@ -59,6 +58,7 @@ if __name__ == "__main__":
     done = False
     for i in range(20):
         action = env.action_space.sample()
+        print(action)
         o, r, done, _, _ = env.step(action)
         env.render()
     env.close()
