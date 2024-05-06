@@ -14,7 +14,7 @@ class GridConfig(CommonSettings, ):
     density: float = 1
     num_agents: int = 1
     obs_radius: int = 150
-    agents_radius: int = 30
+    agents_radius: int = 40
     speed = 20
     map: Union[list, str] = None
 

@@ -499,13 +499,6 @@ class Grid:
     def has_obstacle(self, x, y):
         return self.obstacles[x, y] == self.config.OBSTACLE
 
-    def move_without_checks(self, agent_id, action):
-        x, y = self.positions_xy[agent_id]
-        dx, dy = self.config.MOVES[action]
-        self.positions[x, y] = self.config.FREE
-        self.positions[x+dx, y+dy] = self.config.OBSTACLE
-        self.positions_xy[agent_id] = (x+dx, y+dy)
-
     def move(self, agent_id, action):
         x, y = self.positions_xy[agent_id]
         dx, dy = self.config.MOVES[action]

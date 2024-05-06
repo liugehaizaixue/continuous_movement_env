@@ -104,7 +104,7 @@ def generate_points(matrix , r , k , seed=42):
     if len(start_points) == k and len(target_points) == k :
         return start_points , target_points
     else:
-        return None , None
+        raise ValueError("generate points error")
 
 
 def generate_random_velocities(k , seed=42):

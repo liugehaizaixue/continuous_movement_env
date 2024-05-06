@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import matplotlib.colors as mcolors
+import matplotlib.patches as patches
 import numpy as np
 
 COLORS = ['#FFFFFF', '#000000']
@@ -27,5 +28,24 @@ def visual_map(map):
 def visual_matrix(matrix):
     cmap = ListedColormap(COLORS)
     rendering = plt.imshow(matrix, cmap=cmap, interpolation='none')
+    plt.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True)
+    plt.show()   
+
+
+def visual_state(env, agent_radius):
+    grid = env.env.env.env.env.grid
+    matrix = grid.obstacles
+    pos_list = grid.positions_xy
+    target_list = grid.finishes_xy
+    cmap = ListedColormap(COLORS)
+    rendering = plt.imshow(matrix, cmap=cmap, interpolation='none')
+    for pos in pos_list:
+        """ plt 的横轴为x，纵轴为y 与实际坐标系相反 """
+        circle = patches.Circle((pos[1], pos[0]), radius=agent_radius, edgecolor='blue', facecolor='blue')
+        plt.gca().add_patch(circle)
+    for target in target_list:
+        """ plt 的横轴为x，纵轴为y 与实际坐标系相反 """
+        circle = patches.Circle((target[1], target[0]), radius=agent_radius, edgecolor='r', facecolor='red')
+        plt.gca().add_patch(circle)
     plt.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True)
     plt.show()   
