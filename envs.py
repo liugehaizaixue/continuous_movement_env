@@ -173,7 +173,7 @@ class Cmove(CmoveBase):
     def move_agents(self, actions):
         for agent_idx in range(self.grid_config.num_agents):
             if self.grid.is_active[agent_idx]:
-                self.grid.new_move(agent_idx, actions[agent_idx])
+                self.grid.move(agent_idx, actions[agent_idx])
 
     def get_agents_xy_relative(self):
         return self.grid.get_agents_xy_relative()

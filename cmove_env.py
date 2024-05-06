@@ -1,4 +1,3 @@
-from utils import generate_random_spawn_point , generate_random_velocity
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import gymnasium as gym
@@ -37,7 +36,6 @@ class CMoveEnv(gym.Env):
         return obs , reward , done ,truncated , info
 
     def reset(self, *, seed=None, options=None):
-        self.velocity = generate_random_velocity()
         obs = np.zeros(shape=(5,5)).astype(np.float32)
         info = {}
         return obs , info
