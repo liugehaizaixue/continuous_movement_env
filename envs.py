@@ -23,8 +23,12 @@ class ActionsSampler:
     def update_seed(self, seed=None):
         self._rnd = np.random.default_rng(seed)
 
-    def sample_actions(self, dim=(2,)):
-        return self._rnd.uniform(low=-self._v, high=self._v, size=dim)
+    def sample_actions(self, dim=1):
+        vectors = []
+        for _ in range(dim):
+            vector = np.random.uniform(low=-self._v, high=self._v, size=2)
+            vectors.append(vector)
+        return np.array(vectors)
 
 
 class CmoveBase(gymnasium.Env):
