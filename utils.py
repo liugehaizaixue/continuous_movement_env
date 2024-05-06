@@ -1,5 +1,8 @@
 import random
 import math
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 # 定义函数来生成一个不与障碍物或边界相交的随机出生点
 def generate_random_spawn_point(ball_radius, obstacles, WINDOW_WIDTH, WINDOW_HEIGHT , seed = 0):
@@ -58,3 +61,23 @@ def print_matrix(matrix):
     """ 打印矩阵 """
     for row in matrix:
         print("".join(row))
+
+
+def get_map_array(map_str):
+    map_array = np.array([[1 if c == '#' else 0 for c in line] for line in map_str.strip().split('\n')])
+    return map_array
+
+
+def visual_map(map): 
+    # COLORS = ['#FFFFFF', '#000000', '#6600CC', '#FF0000']
+    COLORS = ['#FFFFFF', '#000000']
+    cmap = ListedColormap(COLORS)
+    rendering = plt.imshow(map, cmap=cmap, interpolation='none')
+    # for i in range(len(map)):
+    #     for j in range(len(map[0])):
+    #         rect = plt.Rectangle((j - 0.5, i - 0.5), 1, 1, edgecolor='black', facecolor='none', linewidth=0.2)
+    #         plt.gca().add_patch(rect)
+
+    plt.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True)
+
+    plt.show()
