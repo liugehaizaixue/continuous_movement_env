@@ -28,13 +28,30 @@ class Grid:
 
         filled_positions = np.zeros(self.obstacles.shape)
         for x, y in self.starts_xy:
-            filled_positions[x, y] = 1
+            filled_positions = self.fill_matrix_with_radius(x, y, filled_positions)
 
         self.positions = filled_positions
         self.agents_speed = self.starts_speed
         self.positions_xy = self.starts_xy
         self._initial_xy = deepcopy(self.starts_xy)
         self.is_active = {agent_id: True for agent_id in range(self.config.num_agents)}
+
+    def fill_matrix_with_radius(self, x, y, matrix):
+        """ Fill matrix with 1 in a circle of radius r around (x, y) """
+        r = self.config.agents_radius
+        for i in range(x - r, x + r + 1):
+            for j in range(y - r, y + r + 1):
+                if (i - x) ** 2 + (j - y) ** 2 <= r ** 2:
+                    matrix[i, j] = self.config.OBSTACLE
+        return matrix
+
+    def unfill_matrix_with_radius(self, x, y, matrix):
+        r = self.config.agents_radius
+        for i in range(x - r, x + r + 1):
+            for j in range(y - r, y + r + 1):
+                if (i - x) ** 2 + (j - y) ** 2 <= r ** 2:
+                    matrix[i, j] = self.config.FREE
+        return matrix
 
     def add_artificial_border(self):
         gc = self.config
@@ -178,6 +195,29 @@ class Grid:
     def has_obstacle(self, x, y):
         return self.obstacles[x, y] == self.config.OBSTACLE
 
+
+    def check_free(self, x, y, matrix):
+        """ x and y are in the center of the agent 
+            r is the radius of the agent
+            matrix is the matrix of the grid
+        """
+        r = self.config.agents_radius
+        for i in range(x - r, x + r + 1):
+            for j in range(y - r, y + r + 1):
+                if (i - x) ** 2 + (j - y) ** 2 <= r ** 2:
+                    if matrix[i, j] == self.config.OBSTACLE:
+                        return False
+        return True
+
+    def try_move(self, x, y, fake_x, fake_y):
+        # 要先排除自己的体积
+        fake_positions = deepcopy(self.positions)
+        fake_positions = self.unfill_matrix_with_radius(x, y, fake_positions)
+        if self.check_free(fake_x, fake_y, self.obstacles) and self.check_free(fake_x, fake_y, fake_positions):
+            return True
+        else:
+            return False
+
     def move(self, agent_id, action):
         self.agents_speed[agent_id] = action
         x, y = self.positions_xy[agent_id]
@@ -186,24 +226,29 @@ class Grid:
         # 计算方向相同但模长为1的向量
         unit_vector = action / magnitude
         k = int(magnitude)
+        movements = []
+        #先收集dx dy 后统一处理
         for i in range(k):
             """ 按单位向量方向走k步 """
             dx , dy = unit_vector
-            pass
-
+            movements.append((dx, dy))
+        #先收集dx dy 后统一处理
         if magnitude % 1 != 0:
             """ 走完剩余长度不到1的部分 """
             dx , dy = (magnitude % 1)*unit_vector
-            pass
-
-        # if self.obstacles[x + dx, y + dy] == self.config.FREE:
-        #     if self.positions[x + dx, y + dy] == self.config.FREE:
-        #         self.positions[x, y] = self.config.FREE
-        #         x += dx
-        #         y += dy
-        #         self.positions[x, y] = self.config.OBSTACLE
-        # self.positions_xy[agent_id] = (x, y)
-        pass
+            movements.append((dx, dy))
+        
+        for dx, dy in movements:
+            fake_x, fake_y = math.ceil(x + dx), math.ceil(y + dy)
+            if self.try_move(x, y, fake_x, fake_y):
+                # 移动成功
+                self.positions = self.unfill_matrix_with_radius(x, y, self.positions)
+                self.positions = self.fill_matrix_with_radius(fake_x, fake_y, self.positions)
+                self.positions_xy[agent_id] = fake_x, fake_y
+                x , y = fake_x, fake_y
+            else:
+                # 移动失败
+                break
 
     def on_goal(self, agent_id):
         return self.positions_xy[agent_id] == self.finishes_xy[agent_id]
@@ -216,17 +261,7 @@ class Grid:
             return False
         self.is_active[agent_id] = False
 
-        self.positions[self.positions_xy[agent_id]] = self.config.FREE
-
-        return True
-
-    def show_agent(self, agent_id):
-        if self.is_active[agent_id]:
-            return False
-
-        self.is_active[agent_id] = True
-        if self.positions[self.positions_xy[agent_id]] == self.config.OBSTACLE:
-            raise KeyError("The cell is already occupied")
-        self.positions[self.positions_xy[agent_id]] = self.config.OBSTACLE
+        x , y = self.positions_xy[agent_id]
+        self.positions = self.unfill_matrix_with_radius(x, y, self.positions)
         return True
 

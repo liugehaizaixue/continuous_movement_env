@@ -50,9 +50,10 @@ def random_point(matrix, r, seed=42):
                 if i < 0 or i >= height or j < 0 or j >= width:
                     valid = False
                     break
-                if matrix[i][j] == 1:
-                    valid = False
-                    break
+                if (i - x) ** 2 + (j - y) ** 2 <= r ** 2:
+                    if matrix[i][j] == 1:
+                        valid = False
+                        break
             if not valid:
                 break
 
