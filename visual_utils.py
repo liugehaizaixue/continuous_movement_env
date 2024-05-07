@@ -46,7 +46,7 @@ def visual_state(env):
         plt.gca().add_patch(circle)
     for target in target_list:
         """ plt 的横轴为x，纵轴为y 与实际坐标系相反 """
-        circle = patches.Circle((target[1], target[0]), radius=agents_radius, edgecolor='none', facecolor='red')
+        circle = patches.Circle((target[1], target[0]), radius=agents_radius, edgecolor='r', facecolor='none')
         plt.gca().add_patch(circle)
     plt.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True)
     plt.show()   
