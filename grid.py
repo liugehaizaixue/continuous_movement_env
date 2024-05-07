@@ -28,7 +28,7 @@ class Grid:
 
         filled_positions = np.zeros(self.obstacles.shape)
         for x, y in self.starts_xy:
-            filled_positions = self.fill_matrix_with_radius(x, y, filled_positions)
+            filled_positions = self.fill_matrix_with_radius(x, y, filled_positions, fill_value=1)
 
         self.positions = filled_positions
         self.agents_speed = self.starts_speed
@@ -36,22 +36,27 @@ class Grid:
         self._initial_xy = deepcopy(self.starts_xy)
         self.is_active = {agent_id: True for agent_id in range(self.config.num_agents)}
 
-    def fill_matrix_with_radius(self, x, y, matrix):
-        """ Fill matrix with 1 in a circle of radius r around (x, y) """
+    def fill_matrix_with_radius(self, x, y, matrix, fill_value):
+        """ Fill matrix with 1 in a circle of radius r around (x, y)
+            fill_value 0 is free (unfill), 1 is obstacle(fill)
+        """
         r = self.config.agents_radius
-        for i in range(x - r, x + r + 1):
-            for j in range(y - r, y + r + 1):
-                if (i - x) ** 2 + (j - y) ** 2 <= r ** 2:
-                    matrix[i, j] = self.config.OBSTACLE
+        x_min = max(x - r, 0)
+        x_max = min(x + r + 1, matrix.shape[0])
+        y_min = max(y - r, 0)
+        y_max = min(y + r + 1, matrix.shape[1])
+        # 创建一个与需要更新的区域大小相同的掩码矩阵
+        mask = np.zeros((x_max - x_min, y_max - y_min), dtype=bool)
+
+        # 计算掩码矩阵中每个元素是否需要更新
+        r_squared = r ** 2
+        i, j = np.ogrid[x_min:x_max, y_min:y_max]
+        mask[((i - x) ** 2 + (j - y) ** 2) <= r_squared] = True
+
+        # 使用掩码矩阵进行批量更新
+        matrix[x_min:x_max, y_min:y_max][mask] = fill_value
         return matrix
 
-    def unfill_matrix_with_radius(self, x, y, matrix):
-        r = self.config.agents_radius
-        for i in range(x - r, x + r + 1):
-            for j in range(y - r, y + r + 1):
-                if (i - x) ** 2 + (j - y) ** 2 <= r ** 2:
-                    matrix[i, j] = self.config.FREE
-        return matrix
 
     def add_artificial_border(self):
         gc = self.config
@@ -211,8 +216,8 @@ class Grid:
 
     def try_move(self, x, y, fake_x, fake_y):
         # 要先排除自己的体积
-        fake_positions = deepcopy(self.positions)
-        fake_positions = self.unfill_matrix_with_radius(x, y, fake_positions)
+        fake_positions = np.array([row[:] for row in self.positions])
+        fake_positions = self.fill_matrix_with_radius(x, y, fake_positions, fill_value=0)
         if self.check_free(fake_x, fake_y, self.obstacles) and self.check_free(fake_x, fake_y, fake_positions):
             return True
         else:
@@ -245,8 +250,8 @@ class Grid:
             fake_x, fake_y = math.ceil(continuous_x), math.ceil(continuous_y)
             if self.try_move(x, y, fake_x, fake_y):
                 # 移动成功
-                self.positions = self.unfill_matrix_with_radius(x, y, self.positions)
-                self.positions = self.fill_matrix_with_radius(fake_x, fake_y, self.positions)
+                self.positions = self.fill_matrix_with_radius(x, y, self.positions, fill_value=0)
+                self.positions = self.fill_matrix_with_radius(fake_x, fake_y, self.positions, fill_value=1)
                 self.positions_xy[agent_id] = fake_x, fake_y
                 x , y = fake_x, fake_y
             else:
@@ -265,6 +270,6 @@ class Grid:
         self.is_active[agent_id] = False
 
         x , y = self.positions_xy[agent_id]
-        self.positions = self.unfill_matrix_with_radius(x, y, self.positions)
+        self.positions = self.fill_matrix_with_radius(x, y, self.positions, fill_value=0)
         return True
 
