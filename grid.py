@@ -207,11 +207,23 @@ class Grid:
             matrix is the matrix of the grid
         """
         r = self.config.agents_radius
-        for i in range(x - r, x + r + 1):
-            for j in range(y - r, y + r + 1):
-                if (i - x) ** 2 + (j - y) ** 2 <= r ** 2:
-                    if matrix[i, j] == self.config.OBSTACLE:
-                        return False
+        x_min = x - r
+        x_max = x + r + 1
+        y_min = y - r
+        y_max = y + r + 1
+
+        # 创建一个与需要检查的区域大小相同的掩码矩阵
+        mask = np.zeros((x_max - x_min, y_max - y_min), dtype=bool)
+
+        # 计算掩码矩阵中每个元素是否在半径范围内
+        r_squared = r ** 2
+        i, j = np.ogrid[x_min:x_max, y_min:y_max]
+        mask[((i - x) ** 2 + (j - y) ** 2) <= r_squared] = True
+
+        # 检查需要检查的区域中的元素是否为障碍物
+        region = matrix[x_min:x_max, y_min:y_max]
+        if np.any(region[mask] == self.config.OBSTACLE):
+            return False
         return True
 
     def try_move(self, x, y, fake_x, fake_y):

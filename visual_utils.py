@@ -42,11 +42,11 @@ def visual_state(env):
     rendering = plt.imshow(matrix, cmap=cmap, interpolation='none')
     for pos in pos_list:
         """ plt 的横轴为x，纵轴为y 与实际坐标系相反 """
-        circle = patches.Circle((pos[1], pos[0]), radius=agents_radius, edgecolor='blue', facecolor='blue')
+        circle = patches.Circle((pos[1], pos[0]), radius=agents_radius, edgecolor='none', facecolor='blue')
         plt.gca().add_patch(circle)
     for target in target_list:
         """ plt 的横轴为x，纵轴为y 与实际坐标系相反 """
-        circle = patches.Circle((target[1], target[0]), radius=agents_radius, edgecolor='r', facecolor='red')
+        circle = patches.Circle((target[1], target[0]), radius=agents_radius, edgecolor='none', facecolor='red')
         plt.gca().add_patch(circle)
     plt.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True)
     plt.show()   

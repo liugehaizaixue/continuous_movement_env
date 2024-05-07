@@ -2,32 +2,6 @@ import random
 import math
 import numpy as np
 from copy import deepcopy
-# 定义函数来生成一个不与障碍物或边界相交的随机出生点
-def generate_random_spawn_point(ball_radius, obstacles, WINDOW_WIDTH, WINDOW_HEIGHT , seed = 0):
-    random.seed(seed)
-    while True:
-        # 生成随机的x和y坐标
-        random_x = random.randint(ball_radius, WINDOW_WIDTH - ball_radius)
-        random_y = random.randint(ball_radius, WINDOW_HEIGHT - ball_radius)
-        
-        # 检查是否与边界相交
-        if random_x - ball_radius < 0 or random_x + ball_radius > WINDOW_WIDTH:
-            continue
-        if random_y - ball_radius < 0 or random_y + ball_radius > WINDOW_HEIGHT:
-            continue
-        
-        # 检查是否与障碍物相交
-        intersect = False
-        for obstacle in obstacles:
-            obstacle_x, obstacle_y, obstacle_radius = obstacle
-            distance = ((random_x - obstacle_x) ** 2 + (random_y - obstacle_y) ** 2) ** 0.5
-            if distance < ball_radius + obstacle_radius:
-                intersect = True
-                break
-        
-        if not intersect:
-            return [random_x, random_y]
-
 
 def random_point(matrix, r, seed=42):
     """ 随机选择点 , 保证选择的点的r范围内不是边界 也不是 障碍1
@@ -44,28 +18,27 @@ def random_point(matrix, r, seed=42):
         y = random.randint(r, width - r - 1)
         x = random.randint(r, height - r - 1)
 
-        valid = True
-        for i in range(x - r, x + r + 1):
-            for j in range(y - r, y + r + 1):
-                if i < 0 or i >= height or j < 0 or j >= width:
-                    valid = False
-                    break
-                if (i - x) ** 2 + (j - y) ** 2 <= r ** 2:
-                    if matrix[i][j] == 1:
-                        valid = False
-                        break
-            if not valid:
-                break
-
-        if valid:
-            return (x, y)
-
-        attempts -= 1
+        x_min = x - r
+        x_max = x + r + 1
+        y_min = y - r
+        y_max = y + r + 1
+        # 创建一个与需要检查的区域大小相同的掩码矩阵
+        mask = np.zeros((x_max - x_min, y_max - y_min), dtype=bool)
+        # 计算掩码矩阵中每个元素是否在半径范围内
+        r_squared = r ** 2
+        i, j = np.ogrid[x_min:x_max, y_min:y_max]
+        mask[((i - x) ** 2 + (j - y) ** 2) <= r_squared] = True
+        # 检查需要检查的区域中的元素是否为障碍物1
+        region = matrix[x_min:x_max, y_min:y_max]
+        if np.any(region[mask] == 1):
+            attempts -= 1
+            continue
+        return (x, y)        
 
     return None
 
 def distance(p1, p2):
-    return ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
+    return (p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2
 
 def generate_points(matrix , r , k , seed=42):
     """ 
@@ -73,7 +46,7 @@ def generate_points(matrix , r , k , seed=42):
         生成k对 start与tartget
         其中starts之间满足距离大于2r，且start的r范围内没有障碍或边界外
     """
-    matrix = deepcopy(matrix)
+    matrix = np.array([row[:] for row in matrix])
     height = len(matrix)
     width = len(matrix[0])
     start_points = []
@@ -86,7 +59,7 @@ def generate_points(matrix , r , k , seed=42):
         start = random_point(matrix , r , seed)
         if start:
             for point in start_points:
-                if distance(start, point) < 2 * r:
+                if distance(start, point) < (2 * r)**2:
                     s_valid = False
                     break
             if s_valid: # 成功找到新的start
