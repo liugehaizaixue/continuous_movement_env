@@ -238,8 +238,11 @@ class Grid:
             dx , dy = (magnitude % 1)*unit_vector
             movements.append((dx, dy))
         
+        continuous_x , continuous_y = x, y
         for dx, dy in movements:
-            fake_x, fake_y = math.ceil(x + dx), math.ceil(y + dy)
+            continuous_x = continuous_x + dx
+            continuous_y = continuous_y + dy
+            fake_x, fake_y = math.ceil(continuous_x), math.ceil(continuous_y)
             if self.try_move(x, y, fake_x, fake_y):
                 # 移动成功
                 self.positions = self.unfill_matrix_with_radius(x, y, self.positions)
