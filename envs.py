@@ -47,7 +47,6 @@ class CmoveBase(gymnasium.Env):
         # noinspection PyTypeChecker
         self.grid: Grid = None
         self.grid_config = grid_config
-        self.grid_config.speed = 20
 
         self.action_space: gymnasium.spaces.Box = gymnasium.spaces.Box(-self.grid_config.speed, self.grid_config.speed, shape=(2, ), dtype=np.float32)
         self._multi_action_sampler = ActionsSampler(self.grid_config.speed, seed=self.grid_config.seed)
